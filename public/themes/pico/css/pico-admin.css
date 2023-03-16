@@ -1,0 +1,8 @@
+#adminSitemap .level1-pagescope{margin-bottom: 0.5em;}
+#adminSitemap .level2-pagescope{margin-left:1em; margin-bottom: 0.5em;}
+#adminSitemap .sitemap-page-add,
+#adminSitemap .sitemap-page-edit,
+#adminSitemap .sitemap-page-delete{padding:0.25em;}
+#adminSitemap .sitemap-page-entry{margin-bottom:0;}
+#adminSitemap .status-0 h5, #adminSitemap .status-0 h5 a{--color: var(--muted-color) !important;}
+#adminUploads img.media-thumbnail{width:64px; height: 64px; object-fit:contain; background-color:#eee;}

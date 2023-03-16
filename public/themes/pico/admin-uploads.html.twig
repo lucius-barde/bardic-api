@@ -1,0 +1,89 @@
+<header class="container">
+	{% include "admin-nav.html.twig" %}
+</header>
+<main class="container">
+	<div id="adminUploads">
+		
+		<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+		<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+
+		<form action="{{ ABSPATH }}/media/fileUpload" class="dropzone" id="admin-uploads-dropzone">
+			<input type="hidden" name="subdir" value="{{ dir }}" />
+		</form>
+
+		<figure>
+			<table id="uploadsList" role="grid">
+				<thead>
+					<tr>
+						<th>Preview</th>
+						<th>Name</th>
+						<th>Size</th>
+						<th>Type</th>
+						<th>Edited</th>
+						<th>Options</th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</figure>
+
+		<script>
+			//DROPZONE
+			Dropzone.options.adminUploadsDropzone = { //camelized `id`
+				maxFiles: 10,
+				maxFilesize: 20,
+				acceptedFiles: ".doc,.docx,.epub,.flac,.jfif,.jpg,.jpeg,.mp3,.ods,.odt,.ogg,.pdf,.ppt,.pptx,.xls,.xlsx",
+				init: function(){
+					this.on('queuecomplete', function(file) {
+					//Refresh folder view when file uploaded
+					getRefreshedFolderView().then( (fetchedMediaList) => setRefreshedFolderView(fetchedMediaList['media']));
+					$('.dz-preview').remove();
+					$('.dropzone.dz-started .dz-message').css("display","block");
+					});
+				}
+				
+			};
+
+			
+			//AJAX REQUEST - Refresh view
+			
+			async function getRefreshedFileList() {
+				
+				const object = { dummy: '/future-variable-to-handle-custom-directory' };
+
+				const response = await fetch('{{ ABSPATH }}/media/refreshFolderView', {
+					method: 'POST',
+					headers: {
+							'Accept': 'application/json',
+							'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(object)
+				});
+				const responseText = await response.json();
+				return responseText;
+			}
+
+			getRefreshedFileList().then(function(fileList){
+				console.log(fileList);
+
+				for(let index in fileList.media){
+					if(fileList.media[index].type != 'directory'){
+						document.querySelector("table#uploadsList tbody").innerHTML += `<tr>
+							<td><a href="{{ ABSPATH }}/uploads{{ dir }}`+fileList.media[index].name+`" target="_blank"><img class="media-thumbnail" src="{{ ABSPATH }}/uploads{{ dir }}_thumb/64x64/`+fileList.media[index].name+`" alt="preview" /></a></td>
+							<td>`+fileList.media[index].name+`</td>
+							<td>`+fileList.media[index].hrsize+`</td>
+							<td>`+fileList.media[index].type+`</td>
+							<td>`+fileList.media[index].modified+`</td>
+							<td><a href="{{ ABSPATH }}/media/delete/{{ dir }}`+fileList.media[index].name+`/?callback=admin/uploads{{ dir == '/' ? dir : dir~'/' }}">Delete</a></td>
+						</tr>`; 
+					}
+				}
+			
+			});
+				
+		</script>
+		
+	</div>
+</main>

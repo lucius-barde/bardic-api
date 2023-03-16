@@ -1,0 +1,20 @@
+<h3>{{ element.name }}</h3>
+<div class="map{{ element.id }}" id="map{{ element.id }}" style="height:400px;"></div>
+
+<link rel="stylesheet" href="{{ ABSPATH }}/themes/starter/vendor/leaflet/leaflet.css" />
+<script src="{{ ABSPATH }}/themes/starter/vendor/leaflet/leaflet.js"></script>
+
+<script>
+	
+	var map = L.map('map{{ element.id }}').setView([{{ element.params.lat }},{{ element.params.lng }}], {{ element.params.zoom }});
+
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+
+	L.marker([{{ element.params.lat }}, {{ element.params.lng }}]).addTo(map)
+	{% if element.params.popupText %}
+		.bindPopup('{{ element.params.popupText }}')
+		{% if element.params.popupOpened %}.openPopup(){% endif %}{% endif %};
+		
+</script>

@@ -1,0 +1,6 @@
+public/cache
+public/composer.lock
+public/config.php
+public/uploads
+public/vendor
+

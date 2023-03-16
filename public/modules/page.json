@@ -1,0 +1,48 @@
+{
+	"name":	"Page",
+	"scope": "page",
+	"canBeParent":true,
+	"icon": "fa fa-file",
+	"baseFormat":{
+		"order":{
+			"type":"number",
+			"default":0,
+			"min":0,
+			"required":true
+		},
+		"metaDescription":{
+			"type":"text",
+			"maxlength":128
+		},
+		"navName":{
+			"type":"text",
+			"maxlength":64
+		},
+		"parentNavName":{
+			"type":"text",
+			"maxlength":64
+		}
+	},
+
+	"i18n":{
+		"en":{
+			"hideTitle": "Hide title",
+			"metaDescription": "Meta description",
+			"name": "Page",
+			"namePlural": "Pages",
+			"navName":"Custom title in the navigation bar",
+			"order": "Order",
+			"parentNavName":"Custom title as the parent nav bar"
+		},
+		"fr":{
+			"hideTitle": "Cacher le titre",
+			"metaDescription": "Méta description",
+			"name": "Page",
+			"namePlural": "Pages",
+			"navName":"Titre barre nav.",
+			"order": "Ordre",
+			"parentNavName":"Titre barre nav. parent"
+			
+		}
+	}
+}

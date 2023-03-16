@@ -1,0 +1,16 @@
+{% if element.status == 1 or (element.status == 0 and session.id) %}
+<a name="{{ element.url }}"></a>
+<div class="paragraph {{ element.url }}" id="id-{{ element.id }}" data-status="{{ element.status }}">
+
+	
+	{% if not element.params.hideTitle %}
+		{% set titleTag = blobModel.getBlobType(element.parent) == "page" ? "h2" : "h4" %}
+		<{{ titleTag }}>
+			{{ element.name }}
+			{% if element.status == 0 %}({{ i18n.offline }}){% endif %}
+		</{{ titleTag }}>
+	{% endif %} 
+	{{ validate.parseMd(element.content) | raw }}
+
+</div>
+{% endif %}

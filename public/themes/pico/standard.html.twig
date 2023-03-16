@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="{{ blob.lang }}">
+
+<head>
+	
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="{{ blob.params.metaDescription }}">
+	<meta name="author" content="">
+	<link rel="stylesheet" href="{{ ABSPATH }}/themes/pico/vendor/pico/pico.min.css" />
+
+	<!-- Title -->
+	<title>{{ site.name }}</title>
+	
+	<!-- Your styles here -->
+	<link rel="stylesheet" href="{{ ABSPATH }}/themes/pico/css/pico-frontend.css" />
+	{% if action starts with "admin" %}
+	<link rel="stylesheet" href="{{ ABSPATH }}/themes/pico/css/pico-admin.css" />
+	{% endif %}
+
+
+</head>
+
+<body {% if blob %}id="id-{{ blob.id }}"{% endif %} class="action-{{ action }}">
+	
+	{% if action == "admin" %}
+		{% include "admin-dashboard.html.twig" %}
+	{% elseif action == "adminCreate" %}	
+		{% include "admin-edit.html.twig" %}		
+	{% elseif action == "adminDashboardByType" %}
+		{% include "admin-dashboard.html.twig" %}
+	{% elseif action == "adminEdit" %}	
+		{% include "admin-edit.html.twig" %}	
+	{% elseif action == "adminSitemap" %}
+		{% include "admin-sitemap.html.twig" %}
+	{% elseif action == "adminRecycle" %}	
+		{% include "admin-dashboard.html.twig" %}	
+	{% elseif action == "adminUploads" %}	
+		{% include "admin-uploads.html.twig" %}		
+	{% elseif action == "userLogin" %}	
+		{% include "signin-form.html.twig" %}
+	{% else %}
+
+	<header class="container"> <!-- .no-padding optional -->
+	  <!-- Sample Main Navigation -->
+	  <nav class="container-fluid">
+		<ul>
+		  <li><strong><a href="{{ ABSPATH }}">{{ site.name }}</a></strong></li>
+		</ul>
+		<ul>
+		{% for level1 in sitemap.children %}
+		{% if level1.lang == blob.lang and level1.status == 1 %}
+			
+			{% if level1.children %}
+			<li>
+				<details role="list">
+				<summary>{{ level1.params.navName ? level1.params.navName : level1.name }}</summary>
+				<ul>
+					<li>
+						<a href="{{ ABSPATH }}/{{ level1.lang }}/{{ level1.url }}">{{ level1.params.navName ? level1.params.navName : level1.name }}</a>
+					</li>
+					{% for level2 in level1.children %}
+					{% if level2.lang == blob.lang  and level2.status == 1  %}
+						<li>
+							<a href="{% if level2.type == 'link' %}{{ level2.content }}{% else %}{{ ABSPATH }}/{{ level2.lang }}/{{ level1.url }}/{{ level2.url }}{% endif %}">{{ level2.params.navName ? level2.params.navName : level2.name }}</a>
+						</li>
+						{% if level2.children %}
+						<ul>
+							{% for level3 in level2.children %}
+							{% if level3.lang == blob.lang  and level3.status == 1  %}
+								<li>
+									<a href="{% if level3.type == 'link' %}{{ level3.content }}{% else %}{{ ABSPATH }}/{{ level3.lang }}/{{ level1.url }}/{{ level2.url }}/{{ level3.url }}{% endif %}">{{ level3.params.navName ? level3.params.navName : level3.name }}</a>
+								</li>
+							{% endif %}
+							{% endfor %}
+						</ul>
+						{% endif %}
+					{% endif %}
+					{% endfor %}
+				</ul>
+			</details>
+			</li>
+			{% else %}
+			<li>
+				<a href="{{ ABSPATH }}/{{ level1.lang }}/{{ level1.url }}">{{ level1.params.navName ? level1.params.navName : level1.name }}</a>
+			</li>
+			{% endif %}
+		{% endif %}
+		{% endfor %}
+
+		<!-- Lang Menu -->
+		{% if translations.length > 1 %}
+			<li>
+				<details role="list">
+				<summary>{{ blob.lang|upper }}</summary>
+				<ul>
+					{% for translation in translations %}
+					<li>
+						<a href="{{ ABSPATH }}/{{ translation.lang }}/{{ translation.url }}">{{ translation.lang|upper }}</a>
+					</li>
+					{% endfor %}
+				</ul>
+				</details>
+			</li>
+		{% endif %}
+		
+		</ul>
+		
+	  </nav>
+	</header>
+
+
+	<!-- Standard Page Content -->
+
+	<main class="container">
+				
+		<!-- Single element view -->
+		{% if action == "readModule" %}
+			{% include blob.type ~ ".html.twig" %}
+		{% elseif action == "read" %}
+
+			{% if session.id and blob.type is not null %}
+			<!-- Blob Admin meta -->
+			<aside class="opcms-meta">
+				<small>
+					{# {{ element.type }} #{{ element.id }} "{{ element.name }}" #}
+					{#{% if element.params.order is not null %}order:{{ element.params.order }}{% endif %} &ndash; #}
+					<a class="button-small no-margin" href="{{ ABSPATH }}/admin/{{ blob.id }}/edit/?callback=frontend" role="button"><i class="fa fa-pen"></i>&nbsp;{{ i18n.edit }} {{ i18n._modules[blob.type].name }}</a>
+					<a class="button-small no-margin" href="{{ ABSPATH }}/admin/create?parent={{ blob.id }}&callback=frontend" role="button"><i class="fa fa-plus"></i>&nbsp;{{ i18n.addContent }}</a>
+				</small>
+			</aside>
+			{% endif %}
+
+			<article class="no-margin">
+
+					
+				<!-- Page view --> 
+				<hgroup>
+					<h1>{{ blob.name }}</h1>
+					<h2>{{ blob.content }}</h2>
+				</hgroup>
+
+				{% for element in elements %}
+				
+					{% if session.id %}
+					<!-- Admin meta -->
+					<aside class="opcms-meta">
+						<small>
+							{# {{ element.type }} #{{ element.id }} "{{ element.name }}" #}
+							{#{% if element.params.order is not null %}order:{{ element.params.order }}{% endif %} &ndash; #}
+							<a class="button-small no-margin" href="{{ ABSPATH }}/admin/{{ element.id }}/edit/?callback=frontend" role="button"><i class="fa fa-pen"></i>&nbsp;{{ i18n.edit }} {{ i18n._modules[element.type].name }}</a>
+						</small>
+					</aside>
+					{% endif %}
+					
+					<!-- Content element -->
+					{% if element.type in ["elementlist","form","image","paragraph","gallery","html","map","productlist"] %}
+						{% include element.type ~ ".html.twig" %}
+					{% elseif element.type in ["block"] %}
+						{% include "includes/" ~ element.url ~ ".html.twig" %}
+							{% include element.type ~ ".html.twig" %}
+						
+					
+					<!-- Content without template -->
+					{% else %}
+						<h2>{{ element.name }}</h2>
+						<p>{{ element.content }}</p>
+					{% endif %}
+					
+				{% endfor %}
+
+			</article>
+				
+	  {% endif %}
+			
+	</main>
+	  
+	  
+	  
+	  <!-- Footer -->
+	
+	<footer class="container">
+		<div class="grid">
+			<div>
+				<small>
+				&copy; Your Website  • 
+				[ <a href="#" data-theme-switcher="light">Light</a> - 
+				<a href="#" data-theme-switcher="dark">Dark</a> - 
+				<a href="#" data-theme-switcher="auto">Auto</a> ]
+				
+				{% if translations %}
+				• [
+				{% for key,translation in translations %}	
+					
+					{% if key > 0 %} - {% endif %}
+					<a class="btn btn-sm btn-light" href="{{ ABSPATH }}/{{ translation.lang }}/{{ translation.url }}">{{ site.params.languages[translation.lang] }}</a>
+				
+				{% endfor %}
+				]
+				{% endif %}
+
+				</small>
+			</div>
+			<div class="align-right">
+				<small>
+				{% if session.id %}
+				
+					<a href="{{ ABSPATH }}/admin/">Admin sitemap</a> • 
+					<a href="{{ ABSPATH }}/admin/logout/">Log out</a>
+					
+				{% else %}
+				
+					<a href="{{ ABSPATH }}/admin/login/">Log in</a>
+					
+				{% endif %}
+				</small>
+			</div>
+		</small>	
+		</div>
+	</footer>
+	  
+
+	{% endif %}
+
+	<!-- OppidumCMS Core -->
+	<script>
+		const ABSPATH = "{{ ABSPATH }}";
+	</script>
+	  
+    <!-- Minimal theme switcher -->
+    <script src="{{ ABSPATH }}/themes/pico/vendor/pico/pico.themeswitcher.js"></script>
+	
+	<!-- Modal -->
+	<script src="{{ ABSPATH }}/themes/pico/vendor/pico/pico.modal.js"></script>
+	
+
+</body>
+
+</html>

@@ -1,0 +1,91 @@
+<nav class="container-fluid">
+	<ul>
+		{% if action in ["adminCreate","adminEdit"] %}
+			{% if get.callback == "frontend" and callback %}  
+				<li><a class="nav-link secondary button-small" role="button" href="{{ ABSPATH }}/{{ callback }}"><strong>&lt;<span class="mobile-hidden"> {{ i18n.back }}</span></strong></a></li>
+			{% elseif get.callback == "adminSitemap" %}
+				<li><a class="nav-link secondary button-small" role="button" href="{{ ABSPATH }}/admin/sitemap/"><strong>&lt;<span class="mobile-hidden"> {{ i18n.back }}</span></strong></a></li>
+			{% else %}
+				<li><a class="nav-link secondary button-small" role="button" href="{{ ABSPATH }}/admin/dashboard/"><strong>&lt;<span class="mobile-hidden"> {{ i18n.back }}</span></strong></a></li>
+			{% endif %}
+		{% endif %}
+		<li>
+			<strong>
+			{% if action == "adminDashboardByType" %}{{ i18n.dashboard }} / {{ type }}
+			{% elseif action == "adminUploads" %}{{ i18n.medias }}
+			{% elseif action == "adminSitemap" %}{{ i18n.sitemap }}
+			{% elseif action == "adminCreate" %}
+				
+				{% if get.params.name and get.parent %}
+				{% set setParent = blob %}
+					{% for blob in blobParentList %}
+					{% if (get.parent and blob.id == get.parent) %}
+						{% set setParent = blob %}
+					{% endif %}
+					{% endfor %}
+					{{ i18n.createNewElement }} : {{ type }} {{ i18n.in }} "{{ setParent.name }}" (#{{ get.parent }})
+
+				{% elseif get.params.name %}
+					{{ i18n.createNewElement }} : {{ type }}
+
+				{% elseif get.parent %}
+					{% set setParent = blob %}
+					{% for blob in blobParentList %}
+					{% if (get.parent and blob.id == get.parent) %}
+						{% set setParent = blob %}
+					{% endif %}
+					{% endfor %}
+					{{ i18n.createNewElement }} in "{{ setParent.name }}" (#{{ get.parent }})
+
+				{% else %}
+					{{ i18n.createNewElement }}
+				{% endif %}
+
+
+
+			{% elseif action == "adminTable" %}{{ i18n.quickedit }}
+			{% elseif action == "adminEdit" %}{{ i18n.edit }} {{ i18n._modules[blob.type].name }} #{{ blob.id }} {% if blob.name %}"{{ blob.name }}"{% endif %}
+			{% elseif action == "adminRecycle" %}{{ i18n.recycle }}
+			{% elseif action == "admin" %}{{ i18n.dashboard }}
+			{% else %} Admin {% endif %}
+			
+			</strong>
+		</li>
+	</ul>
+	<ul>
+		{% if action == "admin" or action == "adminSitemap" %}
+		<li>
+			<details role="list" style="display:inline-block;">
+				<summary aria-haspopup="listbox">{{ i18n.new }}</summary>
+				<ul>
+					{% for blobType in defaultBlobTypes %}
+						{% if blobType.defaultParams.scope in ["page","any"] %}
+						<li>
+							<a href="{{ ABSPATH }}/admin/create/{{ blobType.key }}?callback={{ action }}"><i class="{{ blobType.defaultParams.icon }}"></i> {{ i18n._modules[blobType.key].name ?? blobType.defaultParams.name }}</a>
+						</li>
+						{% endif %}
+					{% endfor %}
+				</ul>
+			</details>
+		</li>
+		{% endif %}
+		<li>
+			
+			<details role="list" dir="rtl">
+				<summary aria-haspopup="listbox">{{ i18n.manage }}</summary>
+				<ul dir="ltr">
+					<li><a href="{{ ABSPATH }}/"> <b>{{ i18n.toWebsite }}</b></a></li>
+					<li><a href="{{ ABSPATH }}/admin/sitemap/"> {{ i18n.sitemap }}</a></li>
+					<li><a href="{{ ABSPATH }}/admin/dashboard/"> {{ i18n.dashboard }}</a></li>
+					<li><a href="{{ ABSPATH }}/admin/uploads/"> {{ i18n.medias }}</a></li>
+					<li><a href="{{ ABSPATH }}/admin/recycle/"> {{ i18n.recycle }}</a></li>
+					<li><a href="{{ ABSPATH }}/admin/logout/"> {{ i18n.logout }}</a></li>
+				</ul>
+			</details>
+			  
+		</li>
+		
+	</ul>
+	  
+					
+</nav>

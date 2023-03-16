@@ -1,0 +1,157 @@
+<header class="container">
+	{% include "admin-nav.html.twig" %}
+</header>
+<main class="container">
+<div id="adminDashboard">
+	
+	<div style="padding-bottom:1em;">
+		
+		{% for blobType in defaultBlobTypes %}
+		<a role="button" class="button-small {{ type != blobType.key ? 'secondary' : '' }}" href="{{ ABSPATH }}/admin/dashboard{{ type == blobType.key ? '' : '/type/' ~ blobType.key }}/">
+			<i class="{{ blobType.defaultParams.icon }}"></i>
+			{{ blobType.key }}
+			{{ i18n._modules[blobType.type].namePlural ? i18n._modules[blobType.type].namePlural : blobType.type }}
+		</a>
+		{% endfor %}
+	</div>
+	<div>
+		<form class="grid" id="dashboardSearch" name="dashboardSearch" style="text-align:right;" method="get" action="{{ ABSPATH }}/admin/dashboard/">
+			<div>
+			<input type="search" id="searchTerm" value="{{ searchTerm }}" name="searchTerm" placeholder="{{ blobType ? i18n.searchIn~i18n._modules[blobType].namePlural : i18n.search }}" />
+			<input type="hidden" id="type" value="{{ type ? type : searchType }}" name="type" />
+			</div>
+		</form>
+		<script>
+			document.addEventListener('DOMContentLoaded',() => {
+				document.getElementById("searchTerm").onblur = () => {
+					document.getElementById("dashboardSearch").submit();
+				}
+			}, false);
+		</script>
+	</div>
+	
+	{% if get.status == "delete_success" %}
+	<div><a class="alert" href="#" onclick="this.remove();"><ins>This element was deleted: #{{ get.id }} [X]</ins></a></div>
+	{% endif %}
+
+	{% if blobs %}
+	<figure>
+		<table id="adminDashboardTable" role="grid">
+		<thead>
+			<tr>
+			<th data-type="id" scope="col">#</th>
+			{% if not type %}<th data-type="type" scope="col">{{ i18n.fieldTypeAbbr }}</th>{% endif %}
+			<!--<th data-type="url" scope="col">{{ i18n.fieldUrlAbbr }}</th>-->
+			<th data-type="name" scope="col">{{ i18n.fieldNameAbbr }}</th>
+			<!--<th data-type="content" scope="col">{{ i18n.fieldContentAbbr }}</th>-->
+			<th data-type="parent" scope="col">{{ i18n.fieldParentAbbr }}</th>
+			<th data-type="status" scope="col">{{ i18n.fieldStatusAbbr }}</th>
+			<!--<th data-type="author" scope="col">{{ i18n.fieldAuthorAbbr }}</th>-->
+			<!--<th data-type="edited" scope="col">{{ i18n.fieldEditedAbbr }}</th>-->
+			<th data-type="lang" scope="col">{{ i18n.fieldLangAbbr }}</th>
+			<th data-type="translation_of" scope="col">{{ i18n.fieldTranslationOfAbbr }}</th>
+			<th scope="col">{{ i18n.optionsAbbr }}&nbsp;</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for blob in blobs %}
+			<tr rel="{{ blob.id }}">
+			<th scope="row">{{ blob.id }}</th>
+			{% if not type %}<td><a href="{{ ABSPATH }}/admin/dashboard/type/{{ blob.type }}/">{{ blob.type }}</a></td>{% endif %}
+			<!--<td>{{ blob.url }}</td>-->
+			<td>{{ blob.name }}</td>
+			<!--<td>{{ blob.content|slice(0,12) }}{% if blob.content|length > 12 %}...{% endif %}</td>-->
+			<td><a href="{{ ABSPATH }}/admin/{{ blob.parent }}/edit/">{{ blob.parent }}</a></td>
+			<td>{{ blob.status }}</td>
+			<!--<td><a href="{{ ABSPATH }}/admin/{{ blob.author }}/edit/">{{ blob.author }}</a></td>-->
+			<!--<td>{{ blob.edited }}</td>-->
+			<td>{{ blob.lang }}</td> 
+			<td>{{ blob.translation_of }}</td>
+			<td class="options"><a href="{{ ABSPATH }}/admin/{{ blob.id }}/edit/?callback=admin">{{ i18n.edit }}</a>&nbsp;&nbsp;<a href="{{ ABSPATH }}/{{ blob.type }}/{{ blob.id }}/delete/?callback={{ action }}">{{ i18n.delete }}</a></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+		</table>
+	</figure>
+	{% else %}
+		
+	<div class="text-center">No elements found.</div>
+	
+	{% endif %}
+	
+	
+	{% if not searchTerm %}
+		{% if type %}
+		
+			<script>
+				/*$(document).ready(function(){
+					$("#adminDashboard thead th").each(function(){
+						if(!!$(this).attr("data-type")){
+							$(this).append('<a href="{{ ABSPATH }}/admin/dashboard/type/{{ type }}/{{ page }}/?orderby='+$(this).attr("data-type")+'&order=ASC"><small><i class="fa fa-chevron-up ml-1 mr-1"></i></small></a>');
+							$(this).append('<a href="{{ ABSPATH }}/admin/dashboard/type/{{ type }}/{{ page }}/?orderby='+$(this).attr("data-type")+'&order=DESC"><small><i class="fa fa-chevron-down mr-1"></i></small></a>');
+						}
+					});
+				});*/
+			</script>
+			
+			{% if blobs %}
+			<div class="row align-items-center">
+				<div class="col text-center small">
+					{% if page - 1 > 0 %}<a href="{{ ABSPATH }}/admin/dashboard/type/{{ type }}/{{ page - 1 }}/{{ getOrderBy }}{{ getOrder }}">&lt; Prev</a>{% endif %}
+					{{ i18n.pageXofYPageTerm }} <b>{{ page }}</b> {{ i18n.pageXofYOfTerm }} <b>{{ pageCount }}</b>
+					{% if page + 1 <= pageCount %}<a href="{{ ABSPATH }}/admin/dashboard/type/{{ type }}/{{ page + 1 }}/{{ getOrderBy }}{{ getOrder }}">Next &gt;</a>{% endif %}
+				
+				</div>
+			</div>
+			{% endif %}
+		
+		{% elseif action == "adminRecycle" %}
+			<script>
+				/*$(document).ready(function(){
+					$("#adminDashboard thead th").each(function(){
+						if(!!$(this).attr("data-type")){
+							$(this).append('<a href="{{ ABSPATH }}/admin/recycle/{{ page }}/?orderby='+$(this).attr("data-type")+'&order=ASC"><img src="{{ ABSPATH }}/external/icomoon/16px/up.png" alt="A" /></a>');
+							$(this).append('<a href="{{ ABSPATH }}/admin/recycle/{{ page }}/?orderby='+$(this).attr("data-type")+'&order=DESC"><img src="{{ ABSPATH }}/external/icomoon/16px/down.png" alt="D" /></a>');
+						}
+					});
+				});*/
+			</script>
+			<div class="row align-items-center">
+				<div class="col text-center small">
+					{% if page - 1 > 0 %}<a href="{{ ABSPATH }}/admin/recycle/{{ page - 1 }}/{{ getOrderBy }}{{ getOrder }}">&lt; Prev</a>{% endif %}
+					{{ i18n.pageXofYPageTerm }} <b>{{ page }}</b> {{ i18n.pageXofYOfTerm }} <b>{{ pageCount }}</b>
+					{% if page + 1 <= pageCount %}<a href="{{ ABSPATH }}/admin/recycle/{{ page + 1 }}/{{ getOrderBy }}{{ getOrder }}">Next &gt;</a>{% endif %}
+	
+				</div>
+			</div>
+				
+		{% else %}
+		
+			<script>
+				/*$(document).ready(function(){
+					$("#adminDashboard thead th").each(function(){
+						if(!!$(this).attr("data-type")){
+							$(this).append('<a href="{{ ABSPATH }}/admin/dashboard/{{ page }}/?orderby='+$(this).attr("data-type")+'&order=ASC"><small><small><i class="fa fa-chevron-up ml-1 mr-1"></i></small></small></a>');
+							$(this).append('<a href="{{ ABSPATH }}/admin/dashboard/{{ page }}/?orderby='+$(this).attr("data-type")+'&order=DESC"><small><small><i class="fa fa-chevron-down ml-1 mr-1"></i></small></small></a>');
+						}
+					});
+				});*/
+			</script>
+		
+			{% if blobs %}
+			<div class="row align-items-center">
+				<div class="col text-center small">
+					{% if page - 1 > 0 %}<a href="{{ ABSPATH }}/admin/dashboard/{{ page - 1 }}/{{ getOrderBy }}{{ getOrder }}">&lt; Prev</a>{% endif %}
+					{{ i18n.pageXofYPageTerm }} <b>{{ page }}</b> {{ i18n.pageXofYOfTerm }} <b>{{ pageCount }}</b>
+					{% if page + 1 <= pageCount %}<a href="{{ ABSPATH }}/admin/dashboard/{{ page + 1 }}/{{ getOrderBy }}{{ getOrder }}">Next &gt;</a>{% endif %}
+				
+				</div>
+			</div>
+			{% endif %}
+			
+		{% endif %}
+	{% endif %}
+</div>
+
+
+</main>

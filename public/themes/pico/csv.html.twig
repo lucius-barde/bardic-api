@@ -1,0 +1,34 @@
+{% if element.status == 1 or (element.status == 0 and session.id) %}
+<a name="{{ element.url }}"></a>
+<div class="productlist {{ element.url }}" id="id-{{ element.id }}" data-status="{{ element.status }}">
+
+
+	
+		
+		{% if not csv %}
+		<!-- Frontend 404 -->
+		<div class="alert alert-warning">Error: the requested database doesn't exist.</div>
+		{% else %}
+		
+		<div class="section-title">
+			<h2 class="">CSV database "{{ csvName }}"</h2>
+		</div>
+		<div class="row">
+		{% for product in csv %}
+		<div class="col-4">
+		<div class="card" id="product-{{ product.id }}">
+		  <img class="card-img-top" src="{{ ABSPATH }}/uploads/{{ product.image }}" alt="{{ product.name }}">
+		  <div class="card-body">
+			<h5 class="card-title">{{ product.name }}</h5>
+			<p class="card-text">{{ product.description }}.</p>
+			<p class="text-secondary">Ref. number: #{{ product.id }}</p>
+			<a class="btn btn-primary" href="{{ ABSPATH }}/our-products/detail/{{ product.id }}">Read more</a>
+		  </div>
+		</div>
+		</div>
+		{% endfor %}
+		</div>
+		{% endif %}
+
+</div>
+{% endif %}

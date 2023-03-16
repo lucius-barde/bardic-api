@@ -1,0 +1,67 @@
+/* OpCMS redefined variables for Pico.css */
+:root{
+    --font-family: Lato, sans-serif;
+}
+
+/* OpCMS useful additional CSS for Pico.css */
+    
+    /* Align */
+    .align-left{text-align:left;}
+    .align-center{text-align:center;}
+    .align-right{text-align:right;}
+    .align-justify{text-align:justify;}
+
+    /* Aside (opcms-meta) */
+    aside{margin-bottom: calc(var(--spacing) * 0.5);}
+
+    /* Buttons */
+    [role="button"]{margin-bottom: var(--spacing); margin-top: var(--spacing);}
+    .button-small{padding:0.5em; font-size:0.8em;}
+    .button-square{width: 1.5em; height: 1.5em; padding:0; display:inline-block; vertical-align:middle;}
+
+    /* Floating elements */
+    .float-right{float:right;}
+    .float-left{float:left;}
+
+    /* Header spacing */
+    body > header{padding: calc(var(--block-spacing-vertical) * 1) 0;}
+    body > header{padding: calc(var(--block-spacing-vertical) * 0.5) 0;}
+
+    /* Mobile hidden */
+    @media screen and (max-width:767px){
+        .mobile-hidden{display:none !important;}
+    }
+    @media screen and (min-width:768px){
+        .mobile-visible{display:none !important;}
+    }
+
+    /* No margin or padding */
+    .no-margin{margin:0 !important;}
+    .no-padding{padding:0 !important;}
+
+    /* Small */
+    small, .small{font-size: 0.8em;}
+    input.small, select.small{ height: 0.5em !important; padding: 0 0.5em !important; height: 2em !important;}
+
+
+/* Temporary debug for the template */
+/*
+    body{background-color:#00f;}
+    header{background-color:#f00;}
+    nav{background-color:#0f0;}
+    article{background-color: #0cc;}
+    main{background-color:#ff8;}
+    footer{background-color:#f80;}
+    table{background-color:#fff;}
+    aside{background-color:#c8f;}
+    article > div{background-color: #cff;}
+    form{background-color:#fff;}
+    summary, nav > ul > li > a{ background-color: #f08 !important; color: #fff !important;}
+*/
+
+/* Internal padding of the main blocks */
+    form#adminCreate,
+    form#adminEdit,
+    main.container,
+    footer.container {padding: var(--block-spacing-vertical) var(--block-spacing-horizontal);}
+

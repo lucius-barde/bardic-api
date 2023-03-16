@@ -1,0 +1,16 @@
+{% if tab %}
+{% set element = tab %}
+{% endif %}
+<a name="{{ element.url }}"></a>
+<div class="gallery {{ element.url }} {{ element.params.class }}" id="id-{{ element.id }}" data-status="{{ element.status }}">
+	<div class="grid">
+	{% for image in element._external.images %}
+		<div class="thumbnail">
+			<a data-lightbox="gallery-{{ element.id }}" title="{{ image }}"  href="{{ ABSPATH }}/uploads/{{ element.params.folderBase }}/{{ image }}">
+				{# {{ validate.showResponsiveImage(element.params.folderBase~'/'~image , {width:320,height:320,classes:'img-fluid img-thumbnail'}) | raw }} #}
+				<img class="img-fluid img-thumbnail" src="{{ ABSPATH }}/uploads/{{ element.params.folderBase }}/{{ image }}" />
+			</a>
+		</div>
+	{% endfor %}
+	</div>
+</div>

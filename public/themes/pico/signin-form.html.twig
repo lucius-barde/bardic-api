@@ -1,0 +1,69 @@
+<main class="container">
+	<article>
+		<form id="userAdmin" method="post" action="{{ ABSPATH }}/admin/login/">
+
+						{% if not session.id %}
+						
+							
+							{% if status %}
+								{% if statusText == "user_login_incorrect_username" %}
+								Incorrect e-mail or password.
+								{% else %}
+								{{ statusText }}
+								{% endif %}
+							{% endif %}
+						
+							<div>
+								<div><label for="userAdmin[login]">E-Mail</label></div>
+								<div><input type="text" name="userAdmin[login]" /></div>
+							</div>
+							<div>
+								<div><label for="userAdmin[password]">Password</label></div>
+								<div><input type="password" name="userAdmin[password]" /></div>
+							</div>
+							
+							<input type="hidden" id="notifySendForm" value="1" />
+							<input type="hidden" id="callback" name="callback" value="admin/sitemap" />
+							<input type="hidden" id="callbackIfError" name="callbackIfError" value="1" />
+							<input type="hidden" id="notifySendForm" value="1" />
+
+							<div class="grid">
+								<a role="button" class="secondary" href="{{ ABSPATH }}">Back</a>
+								<button type="submit" role="button">Login</button>
+							</div>
+											
+							{% if site.params.allowUserSignup %}
+							
+							
+								<div class="grid">
+									<label>No account ?</label>
+									<a id="userSignup" href="{{ ABSPATH }}/user/signup">Sign up</a>
+								</div>
+								
+							{% endif %}
+							
+						
+						
+						{% else %}
+						
+						
+							<div class="n-row">
+								<div class="_1/1">You are connected as <strong>{{ session.login }}</strong>.</div>
+							</div>
+							
+							<div class="n-row">
+								<div class="_1/1 n-center">
+									<input type="hidden" id="notifySendForm" value="1" />
+									<a class="btn btn-primary" href="{{ ABSPATH }}/admin/">Edit site</a> 
+									<a class="btn btn-danger" href="{{ ABSPATH }}/user/logout/">Logout</a>
+								</div>
+							</div>
+							
+							
+						{% endif %}
+						
+					</div>
+				</div>
+			</form>
+		</article>
+</main>

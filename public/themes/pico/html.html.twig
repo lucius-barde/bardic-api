@@ -1,0 +1,14 @@
+{% if element.status == 1 or (element.status == 0 and session.id) %}
+<a name="{{ element.url }}"></a>
+<div class="html {{ element.url }}" id="id-{{ element.id }}" data-status="{{ element.status }}">
+
+	
+	{% if element.name and not element.params.hideTitle %}
+		<div class="section-title">
+			<h2 class="">{{ element.name }}</h2>
+		</div>
+	{% endif %} 
+		{{ element.content | raw }}
+
+</div>
+{% endif %}

@@ -1,0 +1,11 @@
+{
+    "require": {
+	"php": "^7.2",
+        "slim/slim": "^3.0",
+        "slim/twig-view": "^2.5",
+        "phpmailer/phpmailer": "^6.1",
+        "twig/intl-extra": "^3.3",
+        "twig/extra-bundle": "^3.3",
+        "hellonico/twig-dump-extension": "^1.2"
+    }
+}

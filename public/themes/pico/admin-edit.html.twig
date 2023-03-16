@@ -1,0 +1,257 @@
+<header class="container">
+	{% include "admin-nav.html.twig" %}
+</header>
+<main class="container">
+<div id="adminEdit">
+		<form id="adminEdit" method="post" action="{{ ABSPATH }}/{{ action == 'adminCreate' ? type : blob.type }}/{{ action == 'adminCreate' ? 'create/' :  blob.id ~ '/update/' }}">
+			<div class="grid">
+				<div class="admin-edit-col-left"> 
+					
+					<input type="hidden" class="" id="type" name="type" value="{{ action == 'adminCreate' ? type : blob.type }}" />
+			
+
+					<div>
+						<label for="url" class="small">{{ i18n.fieldUrl }}</label>
+						<input required type="text" class="small" id="url" name="url" value="{{ blob.url }}">
+					</div>
+
+					<div>
+						<label for="name" class="small">{{ i18n.fieldName }}</label>
+						<input type="text" id="name" name="name" value="{{ blob.name }}">
+					</div>
+					<div>
+						<label for="content" class="small">
+							{{ i18n.fieldContent }}
+						</label>
+						<textarea id="content" name="content" rows="5">{{ blob.content }}</textarea>
+					</div>
+
+					<!-- Markdown Help Modal -->
+					<details>
+						<summary><small>{{ i18n.helpMarkdownSyntaxTitle }}</small></summary>
+						
+						<p><small>{{ i18n.helpMarkdownSyntax }}</small></p>
+						<hr />
+						<table style="width:100%;">
+							<col width="50%"></col>
+							<col width="40%"></col>
+
+							<tr>
+								<td>**Bold** text</td>
+								<td><strong>Bold</strong> text</td>
+							</tr>
+							<tr>
+								<td>*Italic* text</td>
+								<td><em>Italic</em> text</td>
+							</tr>
+							<!--<tr>
+								<td>~~Deleted~~ text</td>
+								<td><del>Deleted</del> text</td>
+							</tr>-->
+							<tr>
+								<td>x{sup}2{/sup}</td>
+								<td>x<sup>2</sup></td>
+							</tr>
+							<tr>
+								<td>x{sub}2{/sub}</td>
+								<td>x<sub>2</sub></td>
+							</tr>
+						</table>
+						<hr />
+						<table style="width:100%;">
+							<col width="50%"></col>
+							<col width="40%"></col>
+							<tr>
+								<td>[{{ i18n.link }}](https://www...)</td>
+								<td><a href="https://www.oppidumweb.net">{{ i18n.link }}</a></td>
+							</tr>
+							<tr>
+								<td>_[{{ i18n.linkNewTab }}](https://www...)</td>
+								<td><a href="https://www.oppidumweb.net" target="_blank">{{ i18n.linkNewTab }}</a></td>
+							</tr>
+							<tr>
+								<td>[{{ i18n.linkInternal }}](3)</td>
+								<td>{{ i18n.linkInternal }}</td>
+							</tr>
+							<tr>
+								<td>![{{ i18n.image }}](https://.../img.jpg)</td>
+								<td><img src="" alt="{{ i18n.image }}" /></td>
+							</tr>
+
+						</table>
+						<hr />
+						<table style="width:100%;">
+							<col width="50%"></col>
+							<col width="40%"></col>
+							<tr>
+								<td>### Subtitle</td>
+								<td><h3>Subtitle</h3></td>
+							</tr>
+							<tr>
+								<td>- List item</td>
+								<td><ul><li>List item</li></ul></td>
+							</tr>
+							<tr>
+								<td>1. Ordered list</td>
+								<td><ol><li>Ordered list</li></ol></td>
+							</tr>
+							<tr>
+								<td>`Code`</td>
+								<td><code>Code</code></td>
+							</tr>
+						</table>
+					</details>
+				</div>
+				<div class="admin-edit-col-right">
+
+					<div class="grid">
+
+						<div>
+							<label for="parent" class="small">{{ i18n.fieldParent }}</label>
+							<select class="small" id="parent" name="parent">
+								<option value="0">{{ i18n.noParent }}</option>
+								{% for pblob in blobParentList %}
+									<option value="{{ pblob.id }}"{% if pblob.id == blob.parent or (action == "adminCreate" and pblob.id == get.parent) %} selected{% endif %}>{{ i18n._modules[pblob.type].name }} "{{ pblob.name ?? pblob.url }}"</option>
+								{% endfor %}
+						
+							</select>
+						</div>
+
+
+						<div>
+							<label for="status" class="small">{{ i18n.fieldStatus }}</label>
+							<select class="small" id="status" name="status">
+								<option value="1"{% if blob.status == 1 %} selected{% endif %}>{{ i18n.statusOne }} (1)</option>
+								<option value="0"{% if blob.status == 0 %} selected{% endif %}>{{ i18n.statusZero }} (0)</option>
+								<option value="-1"{% if blob.status == -1 %} selected{% endif %}>{{ i18n.statusMinusOne }} (-1)</option>
+							</select>
+						</div>
+
+
+					</div>
+							
+					<div class="grid">
+					
+						
+						<div>
+							<label for="edited" class="small">{{ i18n.fieldEdited }}</label>
+							<input type="datetime" placeholder="{{ i18n.now }}" class="small" id="edited" name="edited" value="{{ blob.edited }}">
+						</div>
+		
+					</div>
+
+
+
+					<div class="grid">
+
+						<div>
+							<label for="lang" class="small">{{ i18n.fieldLang }}</label>
+							<select class="small" id="lang" name="lang">
+							{% for lang in site.params.languages|keys %}
+								<option value="{{ lang }}"{% if blob.lang == lang %} selected{% endif %}>{{ site.params.languages[lang] }} ({{ lang }})</option>
+							{% endfor %}
+							</select>
+						</div>
+
+						<div>
+							<label for="translation_of" class="small">{{ i18n.fieldTranslationOf }}</label>
+							<select class="small" id="translation_of" name="translation_of">
+								<option value="">{{ i18n.none }}</option>
+							{% for tblob in translationBlobs %}
+							{% if tblob.lang == site.params.default_language and tblob.type == blob.type %}
+								<option value="{{ tblob.id }}"{% if tblob.id == blob.translation_of %} selected{% endif %}>{{ i18n._modules[tblob.type].name }} "{{ tblob.name ?? tblob.url }}"</option>
+							{% endif %}
+							{% endfor %}
+							</select>
+						</div>
+
+					</div>
+				
+					
+						
+					<div>
+						<label for="params" class="small">{{ i18n.fieldParams }}</label>
+						<!--<div class="float-right"><button id="addParamLine" class="btn btn-sm btn-secondary">+</button></div>-->
+						 
+						<div id="paramsWrapper" class="params-wrapper">
+							 {% set unsetParams = [] %}
+							 {% for bkey,bparam in get.params.baseFormat %}
+								{% if bkey not in blob.params|keys %}
+									{% set unsetParams = unsetParams|merge({ (bkey) : (bparam.default) }) %}
+								{% endif %}
+							 {% endfor %}
+							 {% set blobParamsTmp = blob.params ? blob.params : [] %}
+							 {% set blobAndUnsetParams = blobParamsTmp|merge(unsetParams) %}
+							
+							{% for key,param in blobAndUnsetParams %}
+							
+								{% if param is iterable %}
+									<div class="grid">
+
+										<div>
+											<input type="hidden" class="small" data-keylevel="1" name="paramsKeys[{{ key }}]"" value="{{ key }}" />
+											<label class="small">{{ i18n._modules[blob.type][key] ?  i18n._modules[blob.type][key] : key }}:</label>
+										</div>
+
+										<div>
+											{% for subkey, subparam in param %}
+											<div class="grid">
+												<div><input type="text" class="small" style="width:49%" data-keylevel="2" name="paramsKeys[{{ key }}][{{ subkey }}]" value="{{ subkey }}" />
+													<input type="text" class="small"  style="width:49%" data-paramlevel="2" name="params[{{ key }}][{{ subkey }}]" value="{{ subparam }}" /></div>
+											</div>
+											{% endfor %}
+											<div class="grid no-margin">
+												<div><input type="text" class="small" style="width:49%" data-keylevel="2" name="paramsKeys[{{ key }}][{{ subkey + 1 }}]" value="{{ subkey }}" />
+												<input type="text" class="small" style="width:49%" data-paramlevel="2" name="params[{{ key }}][{{ subkey + 1 }}]" value="{{ subparam }}" /></div>
+											</div>
+										</div>
+
+									</div>
+								{% else %}
+									<div class="grid">
+										
+											<div>
+												<label class="small" for="params[{{ key }}]">{{ i18n._modules[blob.type][key] ?  i18n._modules[blob.type][key] : key }}:</label>
+												<input type="hidden" class="small" data-keylevel="1" name="paramsKeys[{{ key }}]" value="{{ key }}" />
+											</div>
+
+											<div>
+												{% if get.params.baseFormat[key].type == "select" %}
+													<select class="small" data-paramlevel="1" name="params[{{ key }}]">
+														{% for option,optkey in get.params.baseFormat[key].options %}
+															<option value="{{ optkey }}" {% if optkey == param %}selected{% endif %}>{{ option }}</option>
+														{% endfor %} 
+													</select>
+												{% elseif get.params.baseFormat[key].type == "checkbox" %}
+													<input type="checkbox" class="small" data-paramlevel="1" {% if param == true %}checked{% endif %} name="params[{{ key }}]" />
+												{% else %}
+													<input type="text" class="small" data-paramlevel="1" name="params[{{ key }}]" value="{{ param }}" placeholder="{{ get.params.baseFormat[key].placeholder }}" />
+												{% endif %}
+												
+											</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+							
+							
+						</div><!-- /params-wrapper -->
+					  </div><!-- /form-group -->
+
+					
+
+			</div>
+		</div>
+		<div class="grid">
+			
+			<div></div>
+			<div>
+				<p><small>This page will redirect to: {{ get.callback ? get.callback : "JSON Response"}}</small></p>
+				<input type="hidden" name="callback" value="{{ get.callback }}" />
+				<button class="btn btn-primary" type="submit">{{ action == "adminCreate" ? i18n.create: i18n.updateElement }}</button>
+			</div>
+			<div></div>
+
+		</div>
+		</form>
+</div>
+</main>

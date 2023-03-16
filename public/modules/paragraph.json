@@ -1,0 +1,37 @@
+{
+	"name":	"Paragraph",
+	"scope": "pageElement",
+	"private":true,
+	"icon": "fa fa-file-alt",
+	"baseFormat":  {
+		"order":{
+			"type":"number",
+			"default":0,
+			"min":0,
+			"required":true
+		},
+		"hideTitle":{
+			"type":"number",
+			"default":0,
+			"min":0,
+			"max":1,
+			"required":true
+		}
+	},
+
+	"i18n":{
+		"en":{
+			"hideTitle": "Hide title",
+			"name": "Paragraph",
+			"namePlural": "Paragraphs",
+			"order": "Order"
+		},
+		"fr":{
+			"hideTitle": "Cacher le titre",
+			"name": "Paragraphe",
+			"namePlural": "Paragraphes",
+			"order": "Ordre"
+			
+		}
+	}
+}

@@ -1,0 +1,18 @@
+{% if element.status == 1 or (element.status == 0 and session.id) %}
+
+<div class="image {{ element.url }}" id="id-{{ element.id }}" data-status="{{ element.status }}">
+
+		{% set media = blobModel.getMediaFromUrl(element.url) %}
+		<h2>{{ element.name }}</h2>
+		<figure>
+			{{ validate.showResponsiveImage(element.params.src,element.id) | raw }}
+			
+			<figcaption>
+				<h5>{{ validate.parseMd(media.name,false) }}</h5>
+			</figcaption>
+		</figure>
+			
+</div>
+
+{% endif %}
+	

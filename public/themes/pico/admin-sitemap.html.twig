@@ -1,0 +1,216 @@
+<header class="container">
+	{% include "admin-nav.html.twig" %}
+</header>
+<main class="container">
+<div id="adminSitemap">
+		<div>
+			
+			<div style="padding-bottom:1em;">
+				{% for key,lang in site.params.languages %}
+				{% if langFilter == key %}
+					<a role="button" class="button-small contrast" href="{{ ABSPATH }}/admin/sitemap">{{ key }}</a>
+				{% else %}
+					<a role="button" class="button-small secondary" href="{{ ABSPATH }}/admin/sitemap?langFilter={{ key }}">{{ key }}</a>
+				{% endif %}
+				{% endfor %}
+			</div>
+
+			<div id="sitemap">
+				{% for level1 in sitemap.children %}
+				{% if level1.status > -1 %}
+				<div id="sitemap-id-{{ level1.id }}" class="grid sitemap-page-level1 status-{{ level1.status }}">
+					<div class="level1-pagescope">
+
+						<a name="{{ level1.type }}-{{ level1.id }}"></a>
+						<nav>
+
+							<hgroup class="sitemap-page-entry">
+								<h5>
+								{% for type in blobTypes %}
+									{% if type.key == level1.type %}
+										<i class="{{ type.defaultParams.icon }}"></i>
+									{% endif %}
+								{% endfor %}
+								{% if level1.type == "page" %}
+									<a href="{{ ABSPATH }}/{{ level1.lang }}/{{ level1.url }}">{{ level1.name }}</a>
+								</h5>
+								<h6>{{ level1.type }} #{{ level1.id }} {{ level1.lang }}</h6>
+								</hgroup> 
+								{% else %}
+									{{ level1.name }}
+								</h5> 
+									<h6>{{ level1.type }} #{{ level1.id }} {{ level1.lang }}</h6>
+								</hgroup>	
+								{% endif %}
+							
+
+							
+							<ul>
+								<li class="sitemap-page-add">
+									<details role="list">
+										<summary aria-haspopup="listbox">{{ i18n.add }}</summary>
+										<ul>
+											{% for blobType in defaultBlobTypes %}
+												{% if blobType.defaultParams.scope in ["pageElement","page","any"] %}
+												<li>
+													<a href="{{ ABSPATH }}/admin/create/{{ blobType.key }}?parent={{ level1.id }}&callback={{ action }}"><i class="{{ blobType.defaultParams.icon }}"></i> {{ i18n._modules[blobType.key].name ?? blobType.defaultParams.name }}</a>
+												</li>
+												{% endif %}
+											{% endfor %}
+										</ul>
+									</details>
+								</li>
+								<li class="sitemap-page-edit">
+									<details role="list" dir="rtl">
+										<summary aria-haspopup="listbox">{{ i18n.edit }}</summary>
+										<ul dir="ltr">
+											<li>
+												<a href="{{ ABSPATH }}/admin/{{ level1.id }}/edit/?callback=adminSitemap">{% for type in blobTypes %}{% if type.key == level1.type %}<i class="{{ type.defaultParams.icon }}"></i>{% endif %}{% endfor %} <b>{{ level2.type == "block" ? i18n.editBlock : i18n.editPage }}</b></a>
+											</li>
+											{% for level2 in level1.elements %}
+												{% if level2.type != "block" and level2.status > -1 %}
+												<li class="status-{{ level2.status }}">
+													<a href="{{ ABSPATH }}/admin/{{ level2.id }}/edit/?callback=adminSitemap">{% for type in blobTypes %}{% if type.key == level2.type %}<i class="{{ type.defaultParams.icon }}"></i>{% endif %}{% endfor %} {{ level2.name ? level2.name : level2.type~' #'~level2.id }}</a>
+												</li>
+												{% endif %}
+											{% endfor %}
+										</ul>
+									</details>
+								</li>
+								<li class="sitemap-page-delete">
+									<a role="button" href="#" class="secondary" data-target="modal-delete" data-type="{{ level1.type }}" data-id="{{ level1.id }}" onClick="document.getElementById('elementToDelete').value = {{ level1.id }}; document.getElementById('elementToDeleteLabel').innerHTML = {{ level1.id }}; document.getElementById('elementToDeleteType').value = '{{ level1.type }}';  toggleModal(event)">{{ i18n.delete }}</a>
+								</li>
+							</ul>
+						</nav>
+					</div>
+				</div>	
+				{% endif %}
+				{% for level2 in level1.children %}
+					{##### PAGES LEVEL 2 #####}
+					<div id="sitemap-id-{{ level2.id }}" class="level2-pagescope">
+
+						<a name="{{ level2.type }}-{{ level2.id }}"></a>
+						<nav>
+
+							<hgroup class="sitemap-page-entry">
+								<h5>
+								{% for type in blobTypes %}
+									{% if type.key == level2.type %}
+										<i class="{{ type.defaultParams.icon }}"></i>test
+									{% endif %}
+								{% endfor %}
+								{% if level2.type == "page" %}
+									<a href="{{ ABSPATH }}/{{ level1.lang }}/{{ level1.url }}/{{ level2.url }}">{{ level2.name }}</a>
+								</h5>
+								<h6>{{ level2.type }} #{{ level2.id }} {{ level2.lang }}</h6>
+								</hgroup> 
+								{% else %}
+									{{ level2.name }}
+								</h5> 
+									<h6>#{{ level2.id }} {{ level2.lang }}</h6>
+								</hgroup>	
+								{% endif %}
+
+							<ul>
+								<li class="sitemap-page-add">
+									<details role="list">
+										<summary aria-haspopup="listbox">{{ i18n.add }}</summary>
+										<ul>
+											{% for blobType in defaultBlobTypes %}
+												{% if blobType.defaultParams.scope in ["pageElement"] %}
+												<li>
+													<a href="{{ ABSPATH }}/admin/create/{{ blobType.key }}?parent={{ level2.id }}&callback={{ action }}"><i class="{{ blobType.defaultParams.icon }}"></i> {{ i18n._modules[blobType.key].name ?? blobType.defaultParams.name }}</a>
+												</li>
+												{% endif %}
+											{% endfor %}
+										</ul>
+									</details>
+								</li>
+								<li class="sitemap-page-edit">
+									<details role="list" dir="rtl">
+										<summary aria-haspopup="listbox">{{ i18n.edit }}</summary>
+										<ul dir="ltr">
+											<li>
+												<a href="{{ ABSPATH }}/admin/{{ level2.id }}/edit/?callback=adminSitemap">{% for type in blobTypes %}{% if type.key == level2.type %}<i class="{{ type.defaultParams.icon }}"></i>{% endif %}{% endfor %} <b>{{ level2.type == "block" ? i18n.editBlock : i18n.editPage }}</b></a>
+											</li>
+											{% for level3 in level2.elements %}
+												{% if level3.type != "block" %}
+												<li>
+													<a href="{{ ABSPATH }}/admin/{{ level3.id }}/edit/?callback=adminSitemap">{% for type in blobTypes %}{% if type.key == level3.type %}<i class="{{ type.defaultParams.icon }}"></i>{% endif %}{% endfor %} {{ level3.name ? level3.name : level3.type~' #'~level3.id }}</a>
+												</li>
+												{% endif %}
+											{% endfor %}
+										</ul>
+									</details>
+								</li>
+								<li class="sitemap-page-delete">
+									<a role="button" href="#" class="secondary" data-target="modal-delete" onClick="document.getElementById('elementToDelete').value = {{ level2.id }}; document.getElementById('elementToDeleteLabel').innerHTML = {{ level2.id }}; toggleModal(event);">{{ i18n.delete }}</a>
+								</li>
+							</ul>
+						</nav>
+					</div>
+				{% endfor %}
+
+				{% endfor %}
+			</div>
+			
+		</div>
+</div>
+
+
+<dialog id="modal-delete">
+	<input type="hidden" name="elementToDelete" id="elementToDelete" value="" />
+	<input type="hidden" name="elementToDeleteType" id="elementToDeleteType" value="" />
+	<article>
+	  
+	  <h3 id="deleteModalTitle">{{ i18n.moveElement }} #<span id="elementToDeleteLabel"></span> {{ i18n.toRecycleBin }} ?</h3>
+	  <p id="deleteModalText">
+		{{ i18n.deleteModalText }}
+	  </p>
+	  <footer id="deleteModalFooter">
+		<a href="#cancel"
+		  role="button"
+		  class="secondary"
+		  data-target="modal-delete"
+		  id="deleteModalCancel"
+		  onClick="toggleModal(event)">
+		  {{ i18n.cancel }}
+		</a>
+		<a href="#confirm"
+		  role="button"
+		  data-target="modal-delete"
+		  id="deleteModalConfirm"
+		>
+		  {{ i18n.confirm }}
+		</a>
+	  </footer>
+	</article>
+  </dialog>
+
+  <script>
+	  
+	const deleteBlob = async (event) => {
+
+		try{
+			const id = parseInt(document.getElementById("elementToDelete").value);
+			const type = document.getElementById("elementToDeleteType").value;
+			const deleteBlob = await fetch(`{{ ABSPATH }}/${type}/${id}/delete/`, {method: 'GET'})
+
+			if (deleteBlob) {
+				document.getElementById(`sitemap-id-${id}`).remove();
+				toggleModal(event)
+					
+			} else {
+				document.getElementById("deleteModalTitle").innerHTML = "Error deleting article !"
+			}
+		}
+		catch(error){
+			alert('Error while executing the delete command: '+error)
+		}
+
+	}
+	document.getElementById("deleteModalConfirm").addEventListener('click', deleteBlob)
+	
+  </script>
+</div>
+</main>
