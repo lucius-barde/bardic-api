@@ -317,7 +317,7 @@ $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $arg
 	if($fetchDateDiff > 2630000 or !$fetchDateDiff or !is_file($cachefile)){
         //topio remote
 
-        $url = 'http://www.topio.ch/dico.php';
+        $url = 'https://www.topio.ch/dico.php';
         
         //fetch data from website    
         $ch = curl_init();
@@ -335,7 +335,7 @@ $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $arg
         }else{
     
             $urlForApi = 'topiosearch--topio--';
-            $termJSON['params']['copyright'] = '&copy; <a href="http://www.topio.ch">topio.ch</a>';
+            $termJSON['params']['copyright'] = '&copy; <a href="https://www.topio.ch">topio.ch</a>';
             
             $termJSON['params']['origin'] = $url;
             $urlForApi .= $termJSON['params']['term'];
