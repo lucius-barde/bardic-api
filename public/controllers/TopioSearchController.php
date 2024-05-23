@@ -85,6 +85,9 @@ $app->get('/topiosearch/hsuter[/]', function (Request $q, Response $r, array $ar
 
             ksort($termJSON);
             ksort($termJSON['params']);
+
+            //TODO: save in DB
+
             file_put_contents(ABSDIR.'/cache/topiosearch/'.$termJSON['params']['term'][0].'/'.$urlForApi.'.json', json_encode($termJSON));
             
             $termJSON['params']['source'] = "remote";
@@ -252,6 +255,10 @@ $app->get('/topiosearch/hsuternames[/]', function (Request $q, Response $r, arra
 
             ksort($termJSON);
             ksort($termJSON['params']);
+
+            //TODO: save in DB
+
+
             file_put_contents(ABSDIR.'/cache/topiosearch/'.$termJSON['params']['term'][0].'/'.$urlForApi.'.json', json_encode($termJSON));
         
             $termJSON['params']['source'] = "remote";
@@ -296,6 +303,8 @@ $app->get('/topiosearch/hsuternames[/]', function (Request $q, Response $r, arra
 $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $args) {
 	
 	$validate = new Validator($this->db);
+    $blobModel = new Blob($this->db);
+	$dictionaryModel = new TopioSearch();
    
     $keepAccents = true;
 	$term = $validate->toFileName($_GET['term'],$keepAccents);
@@ -303,18 +312,13 @@ $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $arg
 
     $term = str_replace('_', ' ', $term);
     $term = ucfirst($term);
-    $cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--topio--'.$term.'.json';
+    //$cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--topio--'.$term.'.json';
     
-
-	$dictionaryModel = new TopioSearch();
-
-    if(is_file($cachefile)){
-		$tmpJSON = json_decode(file_get_contents($cachefile),true);
-		$fetchDateDiff = time() - $tmpJSON['edited'];
-	}
-
-	// max storage period before reloading remote source: 1 month
-	if($fetchDateDiff > 2630000 or !$fetchDateDiff or !is_file($cachefile)){
+    $getTopioWord = $this->db->prepare('SELECT * FROM `api_oppidumweb_public` WHERE url = "topiosearch--topio--'.$term.'" AND edited > DATE_SUB(NOW(), INTERVAL 1 MONTH) LIMIT 1;');
+    $getTopioWord->execute();
+    $cachefile = $getTopioWord->fetch();
+    
+    if(empty($cachefile)){
         //topio remote
 
         $url = 'https://www.topio.ch/dico.php';
@@ -348,15 +352,25 @@ $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $arg
                 }
             }
 
-            $termJSON['edited'] = time();
+            $termJSON['edited'] = date('Y-m-d H:i:s');
             $termJSON['lang'] = "fr";
             $termJSON['parent'] = 0;
             $termJSON['status'] = 1;
             
             ksort($termJSON);
             ksort($termJSON['params']);
+
+            
+            //Save in topio database - Params
+            $termJSON['type'] = "topiosearch";
+            $termJSON['name'] = $termJSON['url'];
+            $termJSON['content'] = $termJSON['params']['term'];
+
+            $insertEntry = $blobModel->addBlob($termJSON); 
+            $termJSON['params']['db_insert_callback'] = $insertEntry;
+
             file_put_contents(ABSDIR.'/cache/topiosearch/'.$termJSON['params']['term'][0].'/'.$urlForApi.'.json', json_encode($termJSON));
-        
+            
             $termJSON['params']['source'] = "remote";
     
             return $r->withStatus(200)->withJson($termJSON);
@@ -367,8 +381,9 @@ $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $arg
     }else{
 
         //topio local
-        $localdata = json_decode(file_get_contents($cachefile),true);
+        $localdata = $cachefile;
         if(!!$localdata){
+            $localdata['params'] = json_decode($localdata['params'],true);
             $localdata['params']['source'] = 'local';
             $localdata['params']['fetchDateDiff'] = time() - $localdata['edited'];
             return $r->withStatus(200)->withJson($localdata);
