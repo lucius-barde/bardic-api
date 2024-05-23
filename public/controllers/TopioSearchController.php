@@ -7,23 +7,25 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app->get('/topiosearch/hsuter[/]', function (Request $q, Response $r, array $args) {
 	
 	$validate = new Validator($this->db);
+	$dictionaryModel = new TopioSearch();
+    $blobModel = new Blob($this->db);
+    
     $keepAccents = true;
 	$term = $validate->toFileName($_GET['term'],$keepAccents);
     unset($keepAccents);
     $term = ucfirst($term);
 
-	$cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--hsuter--'.$term.'.json';
-	$dictionaryModel = new TopioSearch();
-    
+//	$cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--hsuter--'.$term.'.json';
+  
 
-    if(is_file($cachefile)){
-		$tmpJSON = json_decode(file_get_contents($cachefile),true);
-		$fetchDateDiff = time() - $tmpJSON['edited'];
-	}
+    $getHsuterWord = $this->db->prepare('SELECT * FROM `api_oppidumweb_public` WHERE url = "topiosearch--hsuter--'.$term.'" AND edited > DATE_SUB(NOW(), INTERVAL 1 MONTH) LIMIT 1;');
+    $getHsuterWord->execute();
+    $cachefile = $getHsuterWord->fetch();
 
-	if($fetchDateDiff > 2630000 or !$fetchDateDiff or !is_file($cachefile)){
 
-        //topio remote
+	if(empty($cachefile)){
+
+        //hsuter remote
 
         $firstLetter = strtoupper($term[0]);
         
@@ -78,7 +80,7 @@ $app->get('/topiosearch/hsuter[/]', function (Request $q, Response $r, array $ar
                 }
             }
 
-            $termJSON['edited'] = time();
+            $termJSON['edited'] = date('Y-m-d H:i:s');
             $termJSON['lang'] = "fr";
             $termJSON['parent'] = 0;
             $termJSON['status'] = 1;
@@ -86,11 +88,16 @@ $app->get('/topiosearch/hsuter[/]', function (Request $q, Response $r, array $ar
             ksort($termJSON);
             ksort($termJSON['params']);
 
-            //TODO: save in DB
-
-            file_put_contents(ABSDIR.'/cache/topiosearch/'.$termJSON['params']['term'][0].'/'.$urlForApi.'.json', json_encode($termJSON));
             
+            //Save in topio database - Params
+            $termJSON['type'] = "topiosearch";
+            $termJSON['name'] = $termJSON['url'];
+            $termJSON['content'] = $termJSON['params']['term'];
+
+            $insertEntry = $blobModel->addBlob($termJSON); 
+            $termJSON['params']['db_insert_callback'] = $insertEntry;
             $termJSON['params']['source'] = "remote";
+
             
             return $r->withStatus(200)->withJson($termJSON);
 
@@ -99,9 +106,10 @@ $app->get('/topiosearch/hsuter[/]', function (Request $q, Response $r, array $ar
 
     }else{
 
-        //topio local
-        $localdata = json_decode(file_get_contents($cachefile),true);
+        //hsuter local
+        $localdata = $cachefile;
         if(!!$localdata){
+            $localdata['params'] = json_decode($localdata['params'],true);
             $localdata['params']['source'] = 'local';
             $localdata['params']['fetchDateDiff'] = time() - $localdata['edited'];
             return $r->withStatus(200)->withJson($localdata);
@@ -118,22 +126,23 @@ $app->get('/topiosearch/hsuter[/]', function (Request $q, Response $r, array $ar
 $app->get('/topiosearch/hsuternames[/]', function (Request $q, Response $r, array $args) {
 	
 	$validate = new Validator($this->db);
+	$dictionaryModel = new TopioSearch();
+    $blobModel = new Blob($this->db);
+    
     $keepAccents = true;
 	$term = $validate->toFileName($_GET['term'],$keepAccents);
     unset($keepAccents);
     $term = ucfirst($term);
 	
-	$dictionaryModel = new TopioSearch();
 
-    $cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--hsuternames--'.$term.'.json';
+//    $cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--hsuternames--'.$term.'.json';
 	
-    if(is_file($cachefile)){
-		$tmpJSON = json_decode(file_get_contents($cachefile),true);
-		$fetchDateDiff = time() - $tmpJSON['edited'];
-	}
+        
+    $getHsuterNamesWord = $this->db->prepare('SELECT * FROM `api_oppidumweb_public` WHERE url = "topiosearch--hsuternames--'.$term.'" AND edited > DATE_SUB(NOW(), INTERVAL 1 MONTH) LIMIT 1;');
+    $getHsuterNamesWord->execute();
+    $cachefile = $getHsuterNamesWord->fetch();
 
-	// max storage period before reloading remote source: 1 month
-	if($fetchDateDiff > 2630000 or !$fetchDateDiff or !is_file($cachefile)){
+	if(empty($cachefile)){
        
         //hsuternames remote
         $secondLetter = strtoupper($term[1]);
@@ -248,7 +257,7 @@ $app->get('/topiosearch/hsuternames[/]', function (Request $q, Response $r, arra
                     return $r->withStatus(500)->withJson(['status'=>'error','statusText'=>'Unable to create the cache folder, please check the permissions on the server', 'term' => $term]);
                 }
             }
-            $termJSON['edited'] = time();
+            $termJSON['edited'] = date('Y-m-d H:i:s');
             $termJSON['lang'] = "fr";
             $termJSON['parent'] = 0;
             $termJSON['status'] = 1;
@@ -256,37 +265,36 @@ $app->get('/topiosearch/hsuternames[/]', function (Request $q, Response $r, arra
             ksort($termJSON);
             ksort($termJSON['params']);
 
-            //TODO: save in DB
+            
+            //Save in topio database - Params
+            $termJSON['type'] = "topiosearch";
+            $termJSON['name'] = $termJSON['url'];
+            $termJSON['content'] = $termJSON['params']['term'];
 
-
-            file_put_contents(ABSDIR.'/cache/topiosearch/'.$termJSON['params']['term'][0].'/'.$urlForApi.'.json', json_encode($termJSON));
-        
+            $insertEntry = $blobModel->addBlob($termJSON); 
+            $termJSON['params']['db_insert_callback'] = $insertEntry;
             $termJSON['params']['source'] = "remote";
 
             
 
             return $r->withStatus(200)->withJson($termJSON);
         }
+
     }else{
         
         //hsuternames local
-        $localdata = json_decode(file_get_contents($cachefile),true);
+        $localdata = $cachefile;
         if(!!$localdata){
+            $localdata['params'] = json_decode($localdata['params'],true);
             $localdata['params']['source'] = 'local';
             $localdata['params']['fetchDateDiff'] = time() - $localdata['edited'];
-
-            if($localdata['params']['fetchDateDiff'] > 2630000 or !$localdata['params']['fetchDateDiff']){
-                
-            }
-            else{
-                return $r->withStatus(200)->withJson($localdata);
-            }
-
-
+            return $r->withStatus(200)->withJson($localdata);
         }else{
             return $r->withStatus(500)->withJson(['status'=>'error','statusText'=>'Error: this entry exists in the dictionary, but the content is corrupted.', 'term' => $term]);
         }
-  
+
+
+       
 
 
     }
@@ -312,7 +320,6 @@ $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $arg
 
     $term = str_replace('_', ' ', $term);
     $term = ucfirst($term);
-    //$cachefile = ABSDIR.'/cache/topiosearch/'.$term[0].'/topiosearch--topio--'.$term.'.json';
     
     $getTopioWord = $this->db->prepare('SELECT * FROM `api_oppidumweb_public` WHERE url = "topiosearch--topio--'.$term.'" AND edited > DATE_SUB(NOW(), INTERVAL 1 MONTH) LIMIT 1;');
     $getTopioWord->execute();
@@ -368,9 +375,6 @@ $app->get('/topiosearch/topio[/]', function (Request $q, Response $r, array $arg
 
             $insertEntry = $blobModel->addBlob($termJSON); 
             $termJSON['params']['db_insert_callback'] = $insertEntry;
-
-            file_put_contents(ABSDIR.'/cache/topiosearch/'.$termJSON['params']['term'][0].'/'.$urlForApi.'.json', json_encode($termJSON));
-            
             $termJSON['params']['source'] = "remote";
     
             return $r->withStatus(200)->withJson($termJSON);
