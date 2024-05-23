@@ -481,7 +481,7 @@ $app->post('/admin/login[/]', function (Request $q, Response $r) {
 	//Check if users are allow to signup
 	$blobModel = new Blob($this->db);
 	$siteParamsQuery = $blobModel->getSiteProperties();
-	$siteParams = json_decode($siteParamsQuery['params'],true);
+	$siteParams = $siteParamsQuery['params'];
 	$allowUserSignup = $siteParams['allowUserSignup'];
 	
 	
@@ -514,7 +514,7 @@ $app->post('/admin/login[/]', function (Request $q, Response $r) {
 			//Check if users are allow to signup
 			$blobModel = new Blob($this->db);
 			$siteParamsQuery = $blobModel->getSiteProperties();
-			$siteParams = json_decode($siteParamsQuery['params'],true);
+			$siteParams = $siteParamsQuery['params'];
 			$allowUserSignup = $siteParams['allowUserSignup'];
 			//Build view
 			$params = [
